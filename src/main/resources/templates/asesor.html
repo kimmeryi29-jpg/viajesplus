@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Cotizar')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Cotizar para un cliente</h1>
+    <p>Usa la misma regla que ve el cliente: tarifa por persona × número de viajeros.</p>
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-6">
+            <label for="paqueteId" class="form-label">Paquete</label>
+            <select id="paqueteId" name="paqueteId" class="form-select" required>
+                <option value="">Elige un paquete</option>
+                <option th:each="p : ${paquetes}" th:value="${p.id}" th:selected="${p.id == paqueteId}"
+                        th:text="${p.name + ' · ' + @fmt.pesos(p.pricePerPerson)}">paquete</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="viajeros" class="form-label">Viajeros</label>
+            <input id="viajeros" name="viajeros" type="number" min="1" max="20" class="form-control" th:value="${viajeros}">
+        </div>
+        <div class="col-md-3"><button class="btn btn-mar w-100">Cotizar</button></div>
+    </form>
+    <p th:if="${error}" class="alert alert-warning mt-3" th:text="${error}"></p>
+    <div th:if="${cotizacion}" class="total p-4 mt-4">
+        <span th:text="${paquete.name}">Paquete</span>:
+        <span th:text="${@fmt.pesos(cotizacion.pricePerPerson)}"></span> × <span th:text="${cotizacion.travelers}"></span> viajeros<br>
+        <span class="valor" th:text="${@fmt.pesos(cotizacion.total)}">$3.600.000</span>
+    </div>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Paquetes')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<header class="portada py-5">
+    <div class="container">
+        <h1 class="display-6">Elige tu próximo viaje por Colombia</h1>
+        <p class="lead mb-0">Cotiza al instante y solicita tu reserva. Un agente la revisa y te responde por correo.</p>
+    </div>
+</header>
+<main class="container py-4">
+    <p th:if="${param.salida}" class="alert alert-info">Cerraste sesión.</p>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="item : ${items}">
+            <article class="tarjeta p-4 d-flex flex-column">
+                <span class="destino" th:text="${item.key.destination}">Destino</span>
+                <h2 class="mt-1" th:text="${item.key.name}">Paquete</h2>
+                <p class="small text-secondary flex-grow-1" th:text="${item.key.description}">Descripción</p>
+                <p class="small mb-2"><span th:text="${item.key.days}">5</span> días ·
+                    <span th:text="${#lists.size(item.value)}">2</span> salidas programadas</p>
+                <div class="d-flex justify-content-between align-items-end">
+                    <div><span class="small text-secondary">Por persona</span><br>
+                        <span class="precio" th:text="${@fmt.pesos(item.key.pricePerPerson)}">$1.200.000</span></div>
+                    <a class="btn btn-mar" th:href="@{/paquetes/{id}(id=${item.key.id})}">Cotizar</a>
+                </div>
+            </article>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

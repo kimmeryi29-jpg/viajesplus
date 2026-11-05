@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Panel')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Hola, <span th:text="${rol}">rol</span></h1>
+    <p>Tu sesión y tus permisos ya funcionan. Tus pantallas llegan en los próximos sprints:</p>
+    <ul><li th:each="f : ${proximamente}" th:text="${f}">función</li></ul>
+    <p class="small text-secondary">Mientras tanto puedes ver los <a th:href="@{/}">paquetes</a> y la <a th:href="@{/swagger-ui.html}">API</a>.</p>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

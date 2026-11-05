@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: viajesplus
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/viajesplus}
+    username: ${SPRING_DATASOURCE_USERNAME:viajesplus}
+    password: ${SPRING_DATASOURCE_PASSWORD:viajesplus}
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  jackson:
+    time-zone: America/Bogota
+  thymeleaf:
+    cache: true
+
+server:
+  port: ${PORT:8080}
+  forward-headers-strategy: framework
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+
+logging:
+  level:
+    root: INFO
+
+viajesplus:
+  demo-password: ${VIAJESPLUS_DEMO_PASSWORD:Viajes2026}
+  oidc:
+    issuer-uri: ${VIAJESPLUS_OIDC_ISSUER_URI:}
+    token-minutes: 480

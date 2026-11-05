@@ -1,0 +1,186 @@
+openapi: 3.0.3
+info:
+  title: ViajesPlus API
+  version: "1.0 (Sprint 1)"
+  description: |
+    Contrato de la API de ViajesPlus (D06, Puerta 2). Cubre lo comprometido en el Sprint 1:
+    autenticación con el proveedor OIDC simulado (IMP-01), catálogo, cotización, solicitud y consulta de
+    reservas, y auditoría. Los errores de negocio responden 422 con { "code", "message", "details" };
+    un recurso ajeno o un rol sin permiso responde 403 (ACCESO_DENEGADO); sin token, 401 (NO_AUTENTICADO).
+    Las rutas de los sprints 2 y 3 (confirm, reject, assignment, cancel) se agregan a este archivo cuando
+    se implementan.
+servers:
+  - url: /
+security:
+  - bearer: []
+paths:
+  /api/auth/token:
+    post:
+      tags: [Autenticación]
+      summary: Obtener un token del proveedor OIDC simulado (HU-06)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TokenRequest' }
+      responses:
+        '200': { description: Token emitido, content: { application/json: { schema: { $ref: '#/components/schemas/TokenResponse' } } } }
+        '401': { description: CREDENCIALES_INVALIDAS, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+  /api/auth/jwks:
+    get:
+      tags: [Autenticación]
+      summary: Llaves públicas del proveedor simulado
+      security: []
+      responses:
+        '200': { description: JWKS }
+  /api/packages:
+    get:
+      tags: [Paquetes]
+      summary: Listar paquetes activos con sus próximas salidas
+      security: []
+      responses:
+        '200': { description: Lista de paquetes, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Package' } } } } }
+  /api/packages/{id}:
+    get:
+      tags: [Paquetes]
+      summary: Detalle de un paquete
+      security: []
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '200': { description: Paquete, content: { application/json: { schema: { $ref: '#/components/schemas/Package' } } } }
+        '404': { description: NO_ENCONTRADO }
+  /api/packages/{id}/quote:
+    get:
+      tags: [Paquetes]
+      summary: Cotizar un paquete (REQ-VIA-001, REQ-VIA-002)
+      description: Total = tarifa por persona × viajeros (RN-01). Roles Cliente, Asesor y Agente.
+      parameters:
+        - { $ref: '#/components/parameters/Id' }
+        - { name: travelers, in: query, required: true, schema: { type: integer, minimum: 1 } }
+      responses:
+        '200': { description: Cotización, content: { application/json: { schema: { $ref: '#/components/schemas/Quote' } } } }
+        '422': { description: DATOS_INVALIDOS (travelers menor que 1), content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+        '403': { description: ACCESO_DENEGADO }
+  /api/reservations:
+    post:
+      tags: [Reservas]
+      summary: Solicitar una reserva (REQ-VIA-003)
+      description: Rol Cliente. La reserva queda PENDIENTE.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReservationRequest' }
+      responses:
+        '201': { description: Reserva creada en PENDIENTE, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
+        '422': { description: DATOS_INVALIDOS con el campo en details, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+        '403': { description: ACCESO_DENEGADO (rol distinto de Cliente) }
+    get:
+      tags: [Reservas]
+      summary: Listar reservas (REQ-VIA-012)
+      description: El cliente ve solo las suyas; asesor, agente, gerente y administrador ven todas.
+      responses:
+        '200': { description: Reservas, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Reservation' } } } } }
+  /api/reservations/{id}:
+    get:
+      tags: [Reservas]
+      summary: Detalle de una reserva (REQ-VIA-012)
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '200': { description: Reserva, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
+        '403': { description: ACCESO_DENEGADO (reserva de otro cliente) }
+        '404': { description: NO_ENCONTRADO }
+  /api/audit:
+    get:
+      tags: [Auditoría]
+      summary: Cambios de estado auditados (REQ-VIA-011)
+      description: Roles Gerente y Administrador.
+      parameters:
+        - { name: reservation, in: query, required: false, schema: { type: string, example: RES-00001 } }
+      responses:
+        '200': { description: Registros de auditoría, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/AuditEntry' } } } } }
+        '403': { description: ACCESO_DENEGADO }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: integer, format: int64 } }
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        code: { type: string, example: DATOS_INVALIDOS }
+        message: { type: string }
+        details: { type: object, additionalProperties: { type: string } }
+    TokenRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string, example: cliente@viajesplus.co }
+        password: { type: string }
+    TokenResponse:
+      type: object
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, example: Bearer }
+        expires_in: { type: integer }
+        role: { type: string, example: CLIENTE }
+        name: { type: string }
+    Departure:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        capacity: { type: integer }
+        availableSeats: { type: integer }
+    Package:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        code: { type: string, example: CTG-01 }
+        name: { type: string }
+        destination: { type: string }
+        description: { type: string }
+        days: { type: integer }
+        pricePerPerson: { type: number, example: 1200000 }
+        departures: { type: array, items: { $ref: '#/components/schemas/Departure' } }
+    Quote:
+      type: object
+      properties:
+        packageId: { type: integer, format: int64 }
+        packageName: { type: string }
+        pricePerPerson: { type: number, example: 1200000 }
+        travelers: { type: integer, example: 3 }
+        total: { type: number, example: 3600000 }
+    ReservationRequest:
+      type: object
+      required: [packageId, departureDate, travelers]
+      properties:
+        packageId: { type: integer, format: int64 }
+        departureDate: { type: string, format: date, example: "2027-01-15" }
+        travelers: { type: integer, minimum: 1, example: 3 }
+    Reservation:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        code: { type: string, example: RES-00001 }
+        packageId: { type: integer, format: int64 }
+        packageName: { type: string }
+        departureDate: { type: string, format: date }
+        travelers: { type: integer }
+        pricePerPerson: { type: number }
+        total: { type: number }
+        status: { type: string, enum: [PENDIENTE, CONFIRMADA, RECHAZADA, CANCELADA] }
+        clientUsername: { type: string }
+        createdAt: { type: string, format: date-time }
+    AuditEntry:
+      type: object
+      properties:
+        entityType: { type: string, example: RESERVA }
+        entityId: { type: string, example: RES-00001 }
+        action: { type: string, example: SOLICITAR }
+        fromStatus: { type: string, nullable: true }
+        toStatus: { type: string }
+        username: { type: string }
+        occurredAt: { type: string, format: date-time }
+        reason: { type: string }

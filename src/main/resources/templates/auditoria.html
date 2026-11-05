@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Auditoría')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Auditoría de reservas</h1>
+    <p>Cada cambio de estado queda con quién lo hizo, cuándo y por qué. Los registros no se pueden editar.</p>
+    <p th:if="${#lists.isEmpty(registros)}">Todavía no hay cambios registrados.</p>
+    <table th:unless="${#lists.isEmpty(registros)}" class="table tabla">
+        <thead><tr><th>Fecha y hora</th><th>Reserva</th><th>Acción</th><th>De</th><th>A</th><th>Usuario</th><th>Motivo</th></tr></thead>
+        <tbody>
+        <tr th:each="a : ${registros}">
+            <td class="small" th:text="${@fmt.fechaHora(a.occurredAt)}">fecha</td>
+            <td th:text="${a.entityId}">RES-00001</td>
+            <td th:text="${a.action}">SOLICITAR</td>
+            <td th:text="${a.fromStatus ?: '—'}">—</td>
+            <td th:text="${a.toStatus}">PENDIENTE</td>
+            <td class="small" th:text="${a.username}">usuario</td>
+            <td class="small" th:text="${a.reason}">motivo</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('No encontrado')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-5">
+    <h1 class="h3 fw-bold">No encontramos lo que buscas</h1>
+    <p th:text="${mensaje}">mensaje</p>
+    <a th:href="@{/}">Ver los paquetes</a>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

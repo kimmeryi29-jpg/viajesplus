@@ -1,0 +1,29 @@
+# Blueprint de Render: entorno de pruebas de ViajesPlus (Sprint 1).
+databases:
+  - name: viajesplus-db
+    databaseName: viajesplus
+    user: viajesplus
+    plan: free
+    region: virginia
+
+services:
+  - type: web
+    name: viajesplus
+    runtime: docker
+    plan: free
+    region: virginia
+    autoDeployTrigger: commit
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase: { name: viajesplus-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: viajesplus-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: viajesplus-db, property: database }
+      - key: SPRING_DATASOURCE_USERNAME
+        fromDatabase: { name: viajesplus-db, property: user }
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromDatabase: { name: viajesplus-db, property: password }
+      - key: VIAJESPLUS_DEMO_PASSWORD
+        value: Viajes2026

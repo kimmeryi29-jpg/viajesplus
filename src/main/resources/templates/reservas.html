@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Mis reservas')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Mis reservas</h1>
+    <p th:if="${creada}" class="alert alert-success">Solicitud <strong th:text="${creada}"></strong> registrada.
+        Quedó pendiente: un agente de reservas la revisará.</p>
+    <p th:if="${#lists.isEmpty(reservas)}">Aún no tienes reservas. <a th:href="@{/}">Elige un paquete</a> para empezar.</p>
+    <table th:unless="${#lists.isEmpty(reservas)}" class="table tabla align-middle">
+        <thead><tr><th>Código</th><th>Paquete</th><th>Salida</th><th>Viajeros</th><th>Total</th><th>Estado</th><th>Solicitada</th></tr></thead>
+        <tbody>
+        <tr th:each="r : ${reservas}">
+            <td><strong th:text="${r.code}">RES-00001</strong></td>
+            <td th:text="${nombres[r.packageId]}">Paquete</td>
+            <td th:text="${@fmt.fecha(fechas[r.departureId])}">fecha</td>
+            <td th:text="${r.travelers}">3</td>
+            <td th:text="${@fmt.pesos(r.total)}">$3.600.000</td>
+            <td><span class="estado" th:text="${r.status}">PENDIENTE</span></td>
+            <td class="small" th:text="${@fmt.fechaHora(r.createdAt)}">hoy</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

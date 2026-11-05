@@ -1,0 +1,28 @@
+:root {
+  --tinta: #1d2a33;
+  --mar: #0f5c6e;
+  --mar-claro: #e3f1f3;
+  --coral: #d9534f;
+  --arena: #f7f4ef;
+  --borde: #dfe5e8;
+}
+body { font-family: "Figtree", system-ui, sans-serif; color: var(--tinta); background: #fff; }
+a { color: var(--mar); }
+.barra { background: var(--mar); }
+.barra .navbar-brand, .barra .nav-link, .barra .navbar-text { color: #fff; }
+.barra .nav-link:hover { color: #cfe8ec; }
+.marca { font-weight: 800; letter-spacing: -.02em; }
+.portada { background: var(--arena); border-bottom: 1px solid var(--borde); }
+.portada h1 { font-weight: 800; letter-spacing: -.03em; }
+.tarjeta { border: 1px solid var(--borde); border-radius: 10px; background: #fff; height: 100%; }
+.tarjeta h2 { font-size: 1.15rem; font-weight: 700; }
+.destino { color: var(--mar); font-weight: 600; font-size: .9rem; }
+.precio { font-size: 1.35rem; font-weight: 800; }
+.btn-mar { background: var(--mar); color: #fff; border: 0; }
+.btn-mar:hover { background: #0b4755; color: #fff; }
+.total { background: var(--mar-claro); border-radius: 10px; }
+.total .valor { font-size: 2rem; font-weight: 800; }
+.estado { font-size: .8rem; font-weight: 700; padding: .2rem .55rem; border-radius: 999px; background: #fff3cd; color: #7a5b00; }
+.tabla th { font-size: .8rem; color: #5b6b75; font-weight: 600; }
+.pie { color: #5b6b75; font-size: .85rem; border-top: 1px solid var(--borde); }
+:focus-visible { outline: 3px solid #f0a500; outline-offset: 2px; }

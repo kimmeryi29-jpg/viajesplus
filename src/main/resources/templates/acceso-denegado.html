@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Acceso denegado')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-5">
+    <h1 class="h3 fw-bold">No tienes permiso para esta página</h1>
+    <p>Tu rol no incluye esta función. Vuelve a los <a th:href="@{/}">paquetes</a> o a tu <a th:href="@{/panel}">panel</a>.</p>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

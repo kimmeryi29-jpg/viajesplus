@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Iniciar sesión')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-5">
+    <div class="row g-5">
+        <div class="col-md-5">
+            <h1 class="h3 fw-bold">Iniciar sesión</h1>
+            <p th:if="${param.error}" class="alert alert-danger">Usuario o contraseña incorrectos.</p>
+            <form method="post" th:action="@{/login}">
+                <label for="username" class="form-label">Correo</label>
+                <input id="username" name="username" type="email" class="form-control mb-3" required autofocus>
+                <label for="password" class="form-label">Contraseña</label>
+                <input id="password" name="password" type="password" class="form-control mb-3" required>
+                <button class="btn btn-mar w-100">Entrar</button>
+            </form>
+            <p class="small text-secondary mt-3">Proveedor de identidad simulado para pruebas (IMP-01).</p>
+        </div>
+        <div class="col-md-7">
+            <h2 class="h5">Usuarios de prueba</h2>
+            <p class="small">Todos usan la contraseña <code th:text="${claveDemo}">clave</code>.</p>
+            <table class="table table-sm tabla">
+                <thead><tr><th>Rol</th><th>Correo</th></tr></thead>
+                <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td th:text="${u.role.label()}">Rol</td>
+                    <td><code th:text="${u.username}">correo</code></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

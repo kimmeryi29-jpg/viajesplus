@@ -1,0 +1,10 @@
+# Base de datos local para Spring Tools: docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: viajesplus
+      POSTGRES_USER: viajesplus
+      POSTGRES_PASSWORD: viajesplus
+    ports:
+      - "5432:5432"

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/base :: head(${paquete.name})}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <a th:href="@{/}" class="small">Volver a los paquetes</a>
+    <div class="row g-4 mt-1">
+        <div class="col-lg-7">
+            <span class="destino" th:text="${paquete.destination}">Destino</span>
+            <h1 class="h2 fw-bold" th:text="${paquete.name}">Paquete</h1>
+            <p th:text="${paquete.description}">Descripción</p>
+            <p><strong th:text="${paquete.days}">5</strong> días ·
+                <strong th:text="${@fmt.pesos(paquete.pricePerPerson)}">$1.200.000</strong> por persona</p>
+            <h2 class="h5 mt-4">Próximas salidas</h2>
+            <table class="table tabla">
+                <thead><tr><th>Fecha de salida</th><th>Cupo</th><th>Plazas libres</th></tr></thead>
+                <tbody>
+                <tr th:each="s : ${salidas}">
+                    <td th:text="${@fmt.fecha(s.departureDate)}">4 de diciembre</td>
+                    <td th:text="${s.capacity}">20</td>
+                    <td th:text="${s.availableSeats}">20</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-5">
+            <section class="tarjeta p-4">
+                <h2 class="h5">Cotiza tu viaje</h2>
+                <form method="get" class="d-flex gap-2 align-items-end mb-3">
+                    <div class="flex-grow-1">
+                        <label for="viajeros" class="form-label small">Número de viajeros</label>
+                        <input id="viajeros" name="viajeros" type="number" min="1" max="20" class="form-control" th:value="${viajeros}">
+                    </div>
+                    <button class="btn btn-outline-secondary">Calcular</button>
+                </form>
+                <p th:if="${errorCotizacion}" class="alert alert-warning" th:text="${errorCotizacion}"></p>
+                <div th:if="${cotizacion}" class="total p-3 mb-3">
+                    <span class="small"><span th:text="${@fmt.pesos(cotizacion.pricePerPerson)}"></span> ×
+                        <span th:text="${cotizacion.travelers}"></span> viajeros</span><br>
+                    <span class="valor" th:text="${@fmt.pesos(cotizacion.total)}">$3.600.000</span>
+                </div>
+                <p th:if="${error}" class="alert alert-danger" th:text="${error}"></p>
+
+                <form sec:authorize="hasRole('CLIENTE')" method="post" th:action="@{/reservas}">
+                    <input type="hidden" name="paqueteId" th:value="${paquete.id}">
+                    <input type="hidden" name="viajeros" th:value="${viajeros}">
+                    <label for="salida" class="form-label small">Fecha de salida</label>
+                    <select id="salida" name="salida" class="form-select mb-3">
+                        <option value="">Elige una fecha</option>
+                        <option th:each="s : ${salidas}" th:value="${s.departureDate}"
+                                th:text="${@fmt.fecha(s.departureDate)}">fecha</option>
+                    </select>
+                    <button class="btn btn-mar w-100">Solicitar reserva para <span th:text="${viajeros}">2</span> viajeros</button>
+                    <p class="small text-secondary mt-2 mb-0">La reserva queda pendiente hasta que un agente la confirme.</p>
+                </form>
+                <p sec:authorize="!isAuthenticated()" class="small mb-0">
+                    <a th:href="@{/login}">Inicia sesión como cliente</a> para solicitar la reserva.</p>
+            </section>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>
