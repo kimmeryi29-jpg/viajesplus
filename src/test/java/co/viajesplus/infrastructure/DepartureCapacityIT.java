@@ -67,7 +67,9 @@ class DepartureCapacityIT extends IntegrationTest {
         long id = salidaConCupo(2, "PRB-02");
         assertThatThrownBy(() -> jdbc.update("UPDATE departure SET occupied_seats = 3 WHERE id = ?", id))
                 .isInstanceOf(DataIntegrityViolationException.class);
-        assertThat(tx.execute(s -> departures.occupySeats(id, 3))).isZero();
-        assertThat(tx.execute(s -> departures.occupySeats(id, 2))).isEqualTo(1);
+        Integer tresPlazas = tx.execute(s -> departures.occupySeats(id, 3));
+        Integer dosPlazas = tx.execute(s -> departures.occupySeats(id, 2));
+        assertThat(tresPlazas).isZero();
+        assertThat(dosPlazas).isEqualTo(1);
     }
 }
