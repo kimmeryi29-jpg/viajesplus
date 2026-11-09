@@ -12,7 +12,7 @@ WORKDIR /app
 RUN addgroup -S viajes && adduser -S viajes -G viajes
 COPY --from=build /app/target/app.jar app.jar
 USER viajes
-ENV JAVA_OPTS="-XX:+UseSerialGC -XX:MaxRAMPercentage=70 -XX:TieredStopAtLevel=1 -Xss256k"
+ENV JAVA_OPTS="-XX:+UseSerialGC -XX:MaxRAMPercentage=55 -XX:MaxMetaspaceSize=160m -XX:ReservedCodeCacheSize=48m -XX:TieredStopAtLevel=1 -Xss256k -XX:+ExitOnOutOfMemoryError"
 EXPOSE 8080
 # En Render la base llega por partes (DB_HOST, DB_PORT, DB_NAME); aquí se arma la URL JDBC.
 ENTRYPOINT ["sh", "-c", "if [ -n \"$DB_HOST\" ]; then export SPRING_DATASOURCE_URL=jdbc:postgresql://$DB_HOST:${DB_PORT:-5432}/$DB_NAME; fi; exec java $JAVA_OPTS -jar app.jar"]
