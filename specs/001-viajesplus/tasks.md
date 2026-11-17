@@ -18,15 +18,15 @@ Aprobado en la Puerta 3 el 29 de octubre de 2026. Cada línea es una tarjeta del
 - [x] T008 [US1] ReservationService y endpoints (REQ-VIA-001, 003, AC-001.1, 003.1)
 
 ## Fase 3 · HU2 Confirmar o rechazar (PBI-04)
-- [ ] T009 [P] [US2] Pruebas de confirmación (14) (AC-004.x a 008.x)
-- [ ] T010 [US2] Caso de uso DecideReservation (REQ-VIA-004 a 008, RN-02 a 05)
-- [ ] T011 [US2] POST confirm/reject y OpenAPI (códigos 422 y 403)
-- [ ] T012 [P] [US2] Notificación al cliente (NFR-VIA-003, ADR-004)
+- [x] T009 [P] [US2] Pruebas de confirmación (14) (AC-004.x a 008.x)
+- [x] T010 [US2] Caso de uso DecideReservation (REQ-VIA-004 a 008, RN-02 a 05)
+- [x] T011 [US2] POST confirm/reject y OpenAPI (códigos 422 y 403)
+- [x] T012 [P] [US2] Notificación al cliente (NFR-VIA-003, ADR-004)
 
 ## Fase 4 · HU3 Asignar hotel y tour (PBI-05)
-- [ ] T013 [P] [US3] Pruebas de asignación y cruces (AC-009.1 a 009.3)
-- [ ] T014 [US3] Caso de uso AssignHotelAndTour (REQ-VIA-009, RN-05, 06)
-- [ ] T015 [US3] Endpoints de asignación y avisos
+- [x] T013 [P] [US3] Pruebas de asignación y cruces (AC-009.1 a 009.3)
+- [x] T014 [US3] Caso de uso AssignHotelAndTour (REQ-VIA-009, RN-05, 06)
+- [x] T015 [US3] Endpoints de asignación y avisos
 
 ## Fase 5 · HU4 Cancelar (PBI-06)
 - [ ] T016 [US4] CancelReservation y endpoint (REQ-VIA-010, AC-010.1, RN-07)
@@ -43,5 +43,6 @@ Aprobado en la Puerta 3 el 29 de octubre de 2026. Cada línea es una tarjeta del
 - [ ] T028 [US5] Actualizar matriz de trazabilidad
 
 Punto de control tras la Fase 2: demostrar la solicitud de una reserva de punta a punta (Review del Sprint 1).
+Punto de control tras la Fase 4: solicitud, confirmación, rechazo sin motivo y asignación con cruce (Review del Sprint 2).
 
 Las tarjetas se crean justo a tiempo: T001 a T008 en el Sprint 1, T009 a T015 en el Sprint 2 y T016 a T018 en el Sprint 3. Las tareas T019 a T023 nacerán del delta de CR-001.

@@ -33,3 +33,28 @@ Cada entrada registra la tarea, quién dirigió a la IA, el prompt de seis parte
 - Dirige: Kevin · Revisa: Meryi
 - Referencias: REQ-VIA-001, 003, 011 y 012; AC-001.1, AC-003.1 y AC-003.2; openapi.yaml.
 - Revisión: se verificó que la solicitud no ocupa cupo en el Sprint 1 (eso es de la confirmación, Sprint 2) y que la auditoría va en la misma transacción.
+
+## T010 · Caso de uso DecideReservation · 10 y 11 de noviembre
+- Dirige: Kevin Santiago Rincón Jaimes · Revisa el diff: Meryi Yimet Bueno Mantilla
+- Prompt de seis partes:
+  - Contexto: ViajesPlus, fase 3 de tasks.md; lee AGENTS.md, constitution.md y spec.md v1.0.1.
+  - Tarea: T010, `co.viajesplus.application.DecisionService` con `confirm` y `reject`.
+  - Referencias: REQ-VIA-004 a 008, RN-02, RN-04, RN-05; AC-004.x, 006.x, 007.x y 008.x.
+  - Restricciones: sin dependencias nuevas; la auditoría en la misma transacción; el aviso por evento después del commit (ADR-004).
+  - Criterio de salida: las 14 pruebas de `DecisionApiIT` (T009) en verde.
+  - Límites: no modifiques las pruebas; resume los archivos tocados.
+- Revisión: tras IMP-02 se verificó que la confirmación no vuelve a ocupar cupo (ya se apartó al solicitar) y que el rechazo lo libera.
+
+## T012 · Notificación al cliente · 9 a 11 de noviembre
+- Dirige: Kevin · Revisa: Meryi
+- Referencias: NFR-VIA-003, ADR-004. Criterio de salida: aviso ENVIADO en menos de 60 segundos.
+- Revisión: el log del correo simulado registra solo el id del aviso, nunca el destinatario ni el contenido (Constitución 6).
+
+## T014 · Caso de uso AssignHotelAndTour · 12 de noviembre
+- Dirige: Kevin · Revisa: Meryi
+- Referencias: REQ-VIA-009, RN-05, RN-06, AC-009.1 a 009.3. Criterio de salida: las 9 pruebas de `AssignmentApiIT` (T013) en verde.
+- Revisión: se verificó que el cruce compara salidas distintas en la misma fecha; dos grupos de la misma salida sí pueden compartir guía.
+
+## T011 y T015 · Endpoints y contrato · 11 a 13 de noviembre
+- Dirige: Kevin · Revisa: Meryi
+- Revisión: `api/openapi.yaml` actualizado a la versión 1.1 y `ContractTest` en verde.

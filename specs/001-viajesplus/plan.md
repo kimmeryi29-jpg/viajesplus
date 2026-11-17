@@ -72,3 +72,11 @@ Las reglas de autorización de los sprints 2 y 3 se declaran desde el Sprint 1 e
 ## 6. Ajuste por IMP-01 (5 de noviembre de 2026)
 
 No hay proveedor OIDC de pruebas. Mientras TI entrega el tenant, la aplicación incluye un proveedor simulado (`SimulatedOidcProvider`) que emite tokens JWT RS256 con los mismos claims (`sub`, `name`, `roles`). Con la variable `VIAJESPLUS_OIDC_ISSUER_URI` la aplicación valida los tokens del proveedor real sin cambiar el resto del código. Revisado contra la constitución (principio 4): el simulador solo existe en pruebas y no guarda datos reales.
+
+## 7. Ajustes del Sprint 2 (9 al 13 de noviembre de 2026)
+
+- **IMP-02 (D09, spec v1.0.1):** el cupo se aparta al solicitar (`DepartureRepository.occupySeats` en `ReservationService.request`) y se libera al rechazar (`releaseSeats`). La migración V3 recalcula las plazas ocupadas de las reservas que ya existían.
+- **Migración V3:** tablas `hotel`, `hotel_availability` (RN-05) y `notification` (ADR-004); columnas de decisión y asignación en `reservation`.
+- **Componentes nuevos:** `DecisionService` (T010), `NotificationService` con `SimulatedEmailSender` (T012), `AssignmentService` (T014) y `ProviderService` (HU-20).
+- **Endpoints nuevos:** `POST /api/reservations/{id}/confirm` y `/reject` (Agente), `PUT /api/reservations/{id}/assignment` y `GET .../assignment-options` (Coordinador), `GET` y `PUT /api/providers/availability` (Proveedor), `GET /api/notifications`.
+- **Puerto:** la aplicación escucha en el 8080 en local, en Docker y en Render (`render.yaml` fija `PORT=8080`).

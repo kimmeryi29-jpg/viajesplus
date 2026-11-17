@@ -1,7 +1,8 @@
-# Especificación: ViajesPlus · Versión 1.0 (aprobada)
+# Especificación: ViajesPlus · Versión 1.0.1 (aprobada)
 
 Ruta: `specs/001-viajesplus/spec.md` · Tarjetas D03, D04 y D05 · Redacta: Meryi Yimet Bueno Mantilla (Dev Spec)
 Aprobada en la Puerta 1 el 28 de octubre de 2026 por Kevin Santiago Rincón Jaimes (Product Owner)
+Corrección v1.0.1 del 11 de noviembre de 2026 (D09, IMP-02): la PO decidió que manda RN-02
 
 ## 1. Contexto y objetivo
 
@@ -37,7 +38,7 @@ La agencia gestiona hoy las reservas de paquetes turísticos por llamada y por c
 | Paquete | Producto turístico con destino, duración y tarifa por persona |
 | Salida | Fecha en que parte un paquete, con un cupo de plazas |
 | Cupo | Número máximo de viajeros de una salida |
-| Plazas ocupadas | Viajeros de las reservas confirmadas de una salida |
+| Plazas ocupadas | Viajeros de las reservas PENDIENTE y CONFIRMADA de una salida (corregido en v1.0.1; antes decía «confirmadas», lo que contradecía RN-02) |
 | Reserva | Solicitud de un cliente para una salida, con número de viajeros y total |
 | Antelación | Días calendario entre la fecha de la decisión y la fecha de salida |
 
@@ -72,7 +73,7 @@ El detalle está en las 53 historias de la hoja Historias de Usuario del Excel (
 | REQ-VIA-001 | Evento | Cuando un cliente, un asesor o un agente cotiza un paquete con un número de viajeros, el sistema deberá mostrar la tarifa por persona y el total. | S1 |
 | REQ-VIA-002 | Ubicuo | El sistema deberá calcular el total de una cotización o reserva según RN-01. | S1 |
 | REQ-VIA-003 | Evento | Cuando un cliente envía una solicitud con paquete, fecha de salida programada y viajeros, el sistema deberá crearla en estado PENDIENTE con su total. | S1 |
-| REQ-VIA-004 | No deseado | Si la reserva supera las plazas libres de la salida, entonces el sistema deberá rechazar la confirmación con CUPO_INSUFICIENTE. | S2 |
+| REQ-VIA-004 | No deseado | Si una solicitud supera las plazas libres de la salida, entonces el sistema deberá rechazarla con CUPO_INSUFICIENTE. Desde la v1.0.1 el cupo se aparta al solicitar (RN-02) y el rechazo lo libera. | S2 |
 | REQ-VIA-005 | No deseado | Si dos operaciones intentan ocupar la misma plaza al tiempo, entonces el sistema deberá permitir solo una, de modo que las plazas ocupadas nunca superen el cupo. | S1 (base) y S2 |
 | REQ-VIA-006 | No deseado | Si faltan menos de 5 días para la salida, entonces el sistema deberá rechazar la confirmación con ANTELACION_INSUFICIENTE. | S2 |
 | REQ-VIA-007 | Evento | Cuando el agente confirma una reserva PENDIENTE que cumple las reglas y el proveedor tiene disponibilidad, el sistema deberá pasarla a CONFIRMADA y notificar al cliente; sin disponibilidad deberá responder SIN_DISPONIBILIDAD. | S2 |
@@ -105,9 +106,10 @@ REQ-VIA-013 queda reservado para el cambio CR-001 (reembolso), que entrará por 
 | AC-002.3 (error) | Cualquier paquete | Se calcula para 0 viajeros | Se rechaza con DATOS_INVALIDOS en el campo travelers |
 | AC-003.1 | Cartagena tiene salida el 15 de enero de 2027 | El cliente solicita esa salida para 3 viajeros | Se crea la reserva en PENDIENTE con total $3.600.000 |
 | AC-003.2 (error) | Un cliente autenticado | Envía la solicitud sin fecha de salida o con 0 viajeros | Responde 422 DATOS_INVALIDOS e indica el campo |
-| AC-004.1 | Una salida con 2 plazas libres | El agente confirma una reserva de 3 viajeros | Se rechaza con CUPO_INSUFICIENTE |
-| AC-004.2 (borde) | Una salida con 3 plazas libres | El agente confirma una reserva de 3 viajeros | Se confirma y quedan 0 plazas |
-| AC-005.1 | Una salida con 1 plaza libre | Dos operaciones la ocupan al mismo tiempo | Solo una lo logra |
+| AC-004.1 | Una salida con 2 plazas libres | Un cliente solicita 3 viajeros | Se rechaza con CUPO_INSUFICIENTE |
+| AC-004.2 (borde) | Una salida con 3 plazas libres | Un cliente solicita 3 viajeros | Se acepta, quedan 0 plazas y el agente la puede confirmar |
+| AC-004.3 (v1.0.1) | Una salida con cupo 4 y una reserva PENDIENTE de 3 viajeros | Otro cliente solicita 2 viajeros | Se rechaza con CUPO_INSUFICIENTE: las pendientes también ocupan cupo |
+| AC-005.1 | Una salida con 1 plaza libre | Dos operaciones (o dos solicitudes) la ocupan al mismo tiempo | Solo una lo logra |
 | AC-005.2 | Una salida con cupo 2 | Se intenta dejar 3 plazas ocupadas directamente en la base | La base de datos lo rechaza |
 | AC-006.1 | Hoy es 10 de noviembre y la salida es el 14 | El agente confirma | Se rechaza con ANTELACION_INSUFICIENTE |
 | AC-006.2 (borde) | Hoy es 10 de noviembre y la salida es el 15 | El agente confirma | Se confirma |
@@ -136,3 +138,4 @@ Ver `docs/scrum/preparacion/acta-clarificacion.md` (D04, 27 de octubre de 2026).
 | 0.1 | 26/10/2026 | Contexto, actores, alcance, historias y reglas iniciales | D03 |
 | 0.2 | 27/10/2026 | Decisiones de la clarificación; sin marcas [NECESITA ACLARACIÓN] | D04 |
 | 1.0 | 28/10/2026 | Requisitos EARS, NFR y criterios Given/When/Then; aprobada en la Puerta 1 | D05 |
+| 1.0.1 | 11/11/2026 | IMP-02: el glosario contradecía RN-02. Manda RN-02: las reservas PENDIENTE y CONFIRMADA ocupan cupo. Se corrige el glosario, REQ-VIA-004, AC-004.1, AC-004.2 y se agrega AC-004.3 | D09 |
