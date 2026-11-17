@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Avisos')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <div th:if="${asignadas != null}">
+        <h1 class="h3 fw-bold">Mis salidas asignadas</h1>
+        <p th:if="${#lists.isEmpty(asignadas)}">Todavía no tienes salidas asignadas.</p>
+        <table th:unless="${#lists.isEmpty(asignadas)}" class="table tabla">
+            <thead><tr><th>Salida</th><th>Paquete</th><th>Reserva</th><th>Viajeros</th><th>Hotel</th></tr></thead>
+            <tbody>
+            <tr th:each="r : ${asignadas}">
+                <td th:text="${@fmt.fecha(@nombres.salida(r.departureId))}"></td>
+                <td th:text="${@nombres.paquete(r.packageId)}"></td>
+                <td th:text="${r.code}"></td>
+                <td th:text="${r.travelers}"></td>
+                <td th:text="${@nombres.hotel(r.hotelId)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <h1 class="h3 fw-bold" th:classappend="${asignadas != null} ? 'mt-5'">Mis avisos</h1>
+    <p class="small text-secondary">En el entorno de pruebas el correo es simulado: los avisos quedan aquí.</p>
+    <p th:if="${#lists.isEmpty(avisos)}">No tienes avisos.</p>
+    <div class="vstack gap-2">
+        <article class="tarjeta p-3" th:each="a : ${avisos}">
+            <div class="d-flex justify-content-between">
+                <strong th:text="${a.subject}">asunto</strong>
+                <span class="small text-secondary" th:text="${@fmt.fechaHora(a.createdAt)}">fecha</span>
+            </div>
+            <p class="mb-1" th:text="${a.body}">cuerpo</p>
+            <span class="small" th:text="'Correo ' + ${a.status} + ' (' + ${a.attempts} + ' intento(s))'">ENVIADO</span>
+        </article>
+    </div>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

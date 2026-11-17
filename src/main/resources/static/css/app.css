@@ -26,3 +26,7 @@ a { color: var(--mar); }
 .tabla th { font-size: .8rem; color: #5b6b75; font-weight: 600; }
 .pie { color: #5b6b75; font-size: .85rem; border-top: 1px solid var(--borde); }
 :focus-visible { outline: 3px solid #f0a500; outline-offset: 2px; }
+.estado-CONFIRMADA { background: #d1f0dc; color: #155c2e; }
+.estado-RECHAZADA { background: #fbdcdc; color: #8a1c1c; }
+.estado-CANCELADA { background: #e6e6e6; color: #444; }
+.alerta-dias { color: #8a1c1c; font-weight: 700; }

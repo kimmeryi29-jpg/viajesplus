@@ -20,7 +20,8 @@ spring:
     cache: true
 
 server:
-  port: ${PORT:8080}
+  # Puerto 8080 en local, en Docker y en Render (render.yaml fija PORT=8080).
+  port: 8080
   tomcat:
     threads:
       max: 30

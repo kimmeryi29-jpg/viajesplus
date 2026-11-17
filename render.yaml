@@ -15,6 +15,8 @@ services:
     autoDeployTrigger: commit
     healthCheckPath: /actuator/health
     envVars:
+      - key: PORT
+        value: "8080"
       - key: DB_HOST
         fromDatabase: { name: viajesplus-db, property: host }
       - key: DB_PORT

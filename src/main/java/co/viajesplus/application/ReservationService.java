@@ -15,20 +15,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * T008 · ReservationService. HU1: el cliente solicita una reserva indicando paquete, fecha de salida y viajeros.
- * Trazabilidad: REQ-VIA-001, REQ-VIA-003, REQ-VIA-011, REQ-VIA-012 · AC-001.1, AC-003.1, AC-003.2 · RN-01.
- * En el Sprint 1 la solicitud no ocupa cupo: el cupo se valida y se ocupa al confirmar (Sprint 2, PBI-04).
+ * Trazabilidad: REQ-VIA-001, REQ-VIA-003, REQ-VIA-004, REQ-VIA-011, REQ-VIA-012 · AC-001.1, AC-003.1, AC-003.2,
+ * AC-004.1 a AC-004.3 · RN-01, RN-02.
+ * Desde la spec v1.0.1 (IMP-02, Sprint 2) la solicitud ocupa cupo: RN-02 dice que las reservas PENDIENTE y
+ * CONFIRMADA consumen el cupo de la salida. El rechazo y la cancelación lo liberan.
  */
 @Service
 public class ReservationService {
 
     /** Roles que pueden consultar todas las reservas; el cliente solo ve las suyas (REQ-VIA-012). */
-    private static final Set<Role> SEE_ALL = EnumSet.of(Role.ASESOR, Role.AGENTE, Role.GERENTE, Role.ADMIN);
+    private static final Set<Role> SEE_ALL = EnumSet.of(Role.ASESOR, Role.AGENTE, Role.COORDINADOR, Role.GERENTE, Role.ADMIN);
 
     private final CatalogService catalog;
     private final DepartureRepository departures;
@@ -67,6 +72,10 @@ public class ReservationService {
             throw BusinessException.invalidField("departureDate", "La fecha de salida ya pasó");
         }
         Quote quote = QuoteCalculator.calculate(pkg.getPricePerPerson(), cmd.travelers());
+        if (departures.occupySeats(departure.getId(), quote.travelers()) == 0) {
+            throw new BusinessException("CUPO_INSUFICIENTE", "No hay plazas suficientes en esa salida",
+                    Map.of("travelers", "Plazas libres: " + departure.getAvailableSeats()));
+        }
         String code = "RES-%05d".formatted(reservations.nextCodeNumber());
         Reservation saved = reservations.save(new Reservation(code, user.username(), pkg.getId(), departure.getId(),
                 quote.travelers(), quote.pricePerPerson(), quote.total()));
@@ -75,10 +84,29 @@ public class ReservationService {
         return saved;
     }
 
+    /** HU-16: bandeja del agente, solo PENDIENTE, de la salida más próxima a la más lejana. */
+    @Transactional(readOnly = true)
+    public List<Reservation> pendingByDeparture() {
+        Map<Long, LocalDate> dates = new HashMap<>();
+        departures.findAll().forEach(d -> dates.put(d.getId(), d.getDepartureDate()));
+        return reservations.findByStatusOrderByCreatedAtDesc(ReservationStatus.PENDIENTE).stream()
+                .sorted(Comparator.comparing((Reservation r) -> dates.get(r.getDepartureId()))
+                        .thenComparing(Reservation::getCreatedAt))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Reservation> withStatus(ReservationStatus status) {
+        return reservations.findByStatusOrderByCreatedAtDesc(status);
+    }
+
     @Transactional(readOnly = true)
     public List<Reservation> visibleTo(CurrentUser user) {
         if (SEE_ALL.contains(user.role())) {
             return reservations.findAllByOrderByCreatedAtDesc();
+        }
+        if (user.role() == Role.GUIA || user.role() == Role.CONDUCTOR) {
+            return reservations.findByGuideUsernameIgnoreCaseOrDriverUsernameIgnoreCase(user.username(), user.username());
         }
         return reservations.findByClientUsernameOrderByCreatedAtDesc(user.username());
     }
@@ -87,7 +115,10 @@ public class ReservationService {
     public Reservation get(CurrentUser user, Long id) {
         Reservation r = reservations.findById(id)
                 .orElseThrow(() -> new NotFoundException("No existe la reserva " + id));
-        if (!SEE_ALL.contains(user.role()) && !r.getClientUsername().equalsIgnoreCase(user.username())) {
+        boolean own = r.getClientUsername().equalsIgnoreCase(user.username())
+                || user.username().equalsIgnoreCase(r.getGuideUsername())
+                || user.username().equalsIgnoreCase(r.getDriverUsername());
+        if (!SEE_ALL.contains(user.role()) && !own) {
             throw new ForbiddenException("La reserva pertenece a otro cliente");
         }
         return r;

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Disponibilidad')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Disponibilidad de mis hoteles</h1>
+    <p>Confirma habitaciones y tarifa por salida. Sin tu confirmación, el agente no puede confirmar reservas de esa salida
+        ni el coordinador asignar el hotel.</p>
+    <p th:if="${ok}" class="alert alert-success" th:text="${ok}"></p>
+    <p th:if="${error}" class="alert alert-danger" th:text="${error}"></p>
+    <table class="table tabla align-middle">
+        <thead><tr><th>Salida</th><th>Hotel</th><th>Habitaciones</th><th>Tarifa por noche</th><th>Confirmada</th><th></th></tr></thead>
+        <tbody>
+        <tr th:each="f, i : ${filas}" th:with="fid='f' + ${i.index}">
+            <td th:text="${@fmt.fecha(f.departure.departureDate)}">fecha</td>
+            <td th:text="${f.hotel.name}">hotel</td>
+            <td><input name="habitaciones" type="number" min="0" class="form-control form-control-sm" style="max-width: 90px"
+                       th:attr="form=${fid}" th:value="${f.rooms}" aria-label="Habitaciones"></td>
+            <td><input name="tarifa" type="number" min="0" step="1000" class="form-control form-control-sm" style="max-width: 140px"
+                       th:attr="form=${fid}" th:value="${f.ratePerNight.longValue()}" aria-label="Tarifa por noche"></td>
+            <td><input name="confirmada" type="checkbox" value="true" class="form-check-input" th:attr="form=${fid}"
+                       th:checked="${f.confirmed}" aria-label="Confirmada"></td>
+            <td>
+                <form method="post" th:action="@{/proveedor}" th:id="${fid}">
+                    <input type="hidden" name="hotelId" th:value="${f.hotel.id}">
+                    <input type="hidden" name="departureId" th:value="${f.departure.id}">
+                    <button class="btn btn-sm btn-mar">Guardar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

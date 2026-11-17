@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Asignación')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Asignar hotel, guía y conductor</h1>
+    <p>Solo reservas confirmadas. Un guía o un conductor no puede tener dos salidas distintas el mismo día.</p>
+    <p th:if="${ok}" class="alert alert-success" th:text="${ok}"></p>
+    <p th:if="${error}" class="alert alert-danger" th:text="${error}"></p>
+    <p th:if="${#lists.isEmpty(confirmadas)}">No hay reservas confirmadas.</p>
+    <div class="row g-3">
+        <div class="col-lg-6" th:each="r : ${confirmadas}">
+            <section class="tarjeta p-3">
+                <div class="d-flex justify-content-between">
+                    <strong th:text="${r.code}">RES</strong>
+                    <span class="small" th:text="${@fmt.fecha(@nombres.salida(r.departureId))}">fecha</span>
+                </div>
+                <p class="small mb-2"><span th:text="${@nombres.paquete(r.packageId)}"></span> ·
+                    <span th:text="${r.travelers}"></span> viajeros</p>
+                <p th:if="${r.hotelId}" class="small total p-2">Asignado: <span th:text="${@nombres.hotel(r.hotelId)}"></span>,
+                    guía <span th:text="${@nombres.usuario(r.guideUsername)}"></span>,
+                    conductor <span th:text="${@nombres.usuario(r.driverUsername)}"></span></p>
+                <form method="post" th:action="@{/coordinador/{id}/asignar(id=${r.id})}" class="row g-2">
+                    <div class="col-12">
+                        <select name="hotelId" class="form-select form-select-sm" aria-label="Hotel">
+                            <option value="">Hotel con disponibilidad confirmada</option>
+                            <option th:each="h : ${hoteles[r.id]}" th:value="${h.id}" th:text="${h.name}"
+                                    th:selected="${h.id == r.hotelId}">hotel</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <select name="guia" class="form-select form-select-sm" aria-label="Guía">
+                            <option value="">Guía</option>
+                            <option th:each="g : ${guias}" th:value="${g.username}" th:text="${g.fullName}"
+                                    th:selected="${g.username == r.guideUsername}">guía</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <select name="conductor" class="form-select form-select-sm" aria-label="Conductor">
+                            <option value="">Conductor</option>
+                            <option th:each="c : ${conductores}" th:value="${c.username}" th:text="${c.fullName}"
+                                    th:selected="${c.username == r.driverUsername}">conductor</option>
+                        </select>
+                    </div>
+                    <div class="col-12"><button class="btn btn-sm btn-mar">Guardar asignación</button></div>
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

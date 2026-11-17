@@ -70,7 +70,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/reservations").hasRole("CLIENTE")
                         // Sprint 2: decisión del agente y asignación del coordinador
                         .requestMatchers(HttpMethod.POST, "/api/reservations/{id}/confirm", "/api/reservations/{id}/reject").hasRole("AGENTE")
-                        .requestMatchers("/api/reservations/{id}/assignment").hasRole("COORDINADOR")
+                        .requestMatchers("/api/reservations/{id}/assignment", "/api/reservations/{id}/assignment-options").hasRole("COORDINADOR")
                         .requestMatchers("/api/providers/**").hasRole("PROVEEDOR")
                         // Sprint 3: cancelación del cliente
                         .requestMatchers(HttpMethod.POST, "/api/reservations/{id}/cancel").hasRole("CLIENTE")
@@ -103,6 +103,9 @@ public class SecurityConfig {
                         .requestMatchers("/reservas/**").hasRole("CLIENTE")
                         .requestMatchers("/asesor/**").hasRole("ASESOR")
                         .requestMatchers("/auditoria/**").hasAnyRole("GERENTE", "ADMIN")
+                        .requestMatchers("/agente/**").hasRole("AGENTE")
+                        .requestMatchers("/proveedor/**").hasRole("PROVEEDOR")
+                        .requestMatchers("/coordinador/**").hasRole("COORDINADOR")
                         .anyRequest().authenticated())
                 .formLogin(f -> f.loginPage("/login").defaultSuccessUrl("/panel", true).permitAll())
                 .logout(l -> l.logoutUrl("/salir").logoutSuccessUrl("/?salida"))

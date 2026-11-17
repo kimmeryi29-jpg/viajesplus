@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Bandeja del agente')}"></head>
+<body>
+<nav th:replace="~{fragments/base :: nav}"></nav>
+<main class="container py-4">
+    <h1 class="h3 fw-bold">Reservas pendientes</h1>
+    <p>Ordenadas por fecha de salida. Para confirmar se necesitan <strong th:text="${minimo}">5</strong> días o más de
+        antelación y un hotel con disponibilidad confirmada por el proveedor. El cupo ya quedó apartado al solicitar.</p>
+    <p th:if="${ok}" class="alert alert-success" th:text="${ok}"></p>
+    <p th:if="${error}" class="alert alert-danger" th:text="${error}"></p>
+    <p th:if="${#lists.isEmpty(pendientes)}">No hay reservas pendientes.</p>
+    <table th:unless="${#lists.isEmpty(pendientes)}" class="table tabla align-middle">
+        <thead><tr><th>Reserva</th><th>Cliente</th><th>Paquete y salida</th><th>Viajeros</th><th>Días</th>
+            <th>Plazas libres</th><th>Hotel</th><th>Decisión</th></tr></thead>
+        <tbody>
+        <tr th:each="p : ${pendientes}">
+            <td><strong th:text="${p.reserva.code}">RES</strong><br><span class="small" th:text="${@fmt.pesos(p.reserva.total)}"></span></td>
+            <td class="small" th:text="${@nombres.usuario(p.reserva.clientUsername)}">cliente</td>
+            <td class="small"><span th:text="${@nombres.paquete(p.reserva.packageId)}"></span><br>
+                <span th:text="${@fmt.fecha(p.salida.departureDate)}"></span></td>
+            <td th:text="${p.reserva.travelers}">3</td>
+            <td th:text="${p.dias}" th:classappend="${p.dias < minimo} ? 'alerta-dias'">12</td>
+            <td th:text="${p.salida.availableSeats} + ' de ' + ${p.salida.capacity}">5 de 20</td>
+            <td class="small" th:text="${p.disponibilidad} ? 'Confirmado' : 'Sin confirmar'">Confirmado</td>
+            <td style="min-width: 260px">
+                <form method="post" th:action="@{/agente/{id}/confirmar(id=${p.reserva.id})}" class="mb-2">
+                    <button class="btn btn-sm btn-mar">Confirmar</button>
+                </form>
+                <form method="post" th:action="@{/agente/{id}/rechazar(id=${p.reserva.id})}" class="d-flex gap-1">
+                    <input name="motivo" class="form-control form-control-sm" placeholder="Motivo del rechazo" aria-label="Motivo del rechazo">
+                    <button class="btn btn-sm btn-outline-danger">Rechazar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2 class="h5 mt-5">Decididas recientemente</h2>
+    <table class="table table-sm tabla">
+        <thead><tr><th>Reserva</th><th>Estado</th><th>Decidió</th><th>Motivo</th></tr></thead>
+        <tbody>
+        <tr th:each="r : ${decididas}">
+            <td th:text="${r.code}">RES</td>
+            <td><span class="estado" th:classappend="'estado-' + ${r.status}" th:text="${r.status}"></span></td>
+            <td class="small" th:text="${@nombres.usuario(r.decidedBy)}"></td>
+            <td class="small" th:text="${r.rejectionReason} ?: '—'"></td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+<footer th:replace="~{fragments/base :: pie}"></footer>
+</body>
+</html>

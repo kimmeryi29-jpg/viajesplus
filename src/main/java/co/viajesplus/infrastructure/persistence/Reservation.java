@@ -49,6 +49,27 @@ public class Reservation {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(name = "decided_by")
+    private String decidedBy;
+
+    @Column(name = "decided_at")
+    private Instant decidedAt;
+
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
+    @Column(name = "hotel_id")
+    private Long hotelId;
+
+    @Column(name = "guide_username")
+    private String guideUsername;
+
+    @Column(name = "driver_username")
+    private String driverUsername;
+
+    @Column(name = "assigned_at")
+    private Instant assignedAt;
+
     protected Reservation() {
     }
 
@@ -63,6 +84,29 @@ public class Reservation {
         this.total = total;
         this.status = ReservationStatus.PENDIENTE;
         this.createdAt = Instant.now();
+    }
+
+    /** REQ-VIA-007: la decisión del agente pasa la reserva a CONFIRMADA. */
+    public void confirm(String agent) {
+        this.status = ReservationStatus.CONFIRMADA;
+        this.decidedBy = agent;
+        this.decidedAt = Instant.now();
+    }
+
+    /** REQ-VIA-008: el rechazo exige motivo y deja la reserva en RECHAZADA. */
+    public void reject(String agent, String reason) {
+        this.status = ReservationStatus.RECHAZADA;
+        this.decidedBy = agent;
+        this.decidedAt = Instant.now();
+        this.rejectionReason = reason;
+    }
+
+    /** REQ-VIA-009: hotel, guía y conductor asignados por el coordinador. */
+    public void assign(Long hotelId, String guide, String driver) {
+        this.hotelId = hotelId;
+        this.guideUsername = guide;
+        this.driverUsername = driver;
+        this.assignedAt = Instant.now();
     }
 
     public Long getId() {
@@ -103,5 +147,33 @@ public class Reservation {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public String getDecidedBy() {
+        return decidedBy;
+    }
+
+    public Instant getDecidedAt() {
+        return decidedAt;
+    }
+
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public Long getHotelId() {
+        return hotelId;
+    }
+
+    public String getGuideUsername() {
+        return guideUsername;
+    }
+
+    public String getDriverUsername() {
+        return driverUsername;
+    }
+
+    public Instant getAssignedAt() {
+        return assignedAt;
     }
 }

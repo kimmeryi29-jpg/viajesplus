@@ -39,12 +39,7 @@ public class WebController {
 
     /** Lo que cada rol recibirá en los sprints siguientes (hoja Historias de Usuario). */
     private static final Map<Role, List<String>> PROXIMAMENTE = Map.of(
-            Role.AGENTE, List.of("Bandeja de reservas pendientes (HU-16)", "Confirmar con cupo, antelación y disponibilidad (HU-17 a HU-20)", "Rechazar con motivo (HU-21)"),
-            Role.PROVEEDOR, List.of("Informar disponibilidad y tarifa del hotel (HU-20)", "Solo hoteles con disponibilidad confirmada (HU-25)"),
-            Role.COORDINADOR, List.of("Asignar hotel, guía y conductor sin cruces (HU-24 a HU-28)"),
-            Role.GUIA, List.of("Aviso de salida asignada (HU-29)", "Itinerario y grupo de la salida, objetivo extendido (HU-42 a HU-45)"),
-            Role.CONDUCTOR, List.of("Aviso con ruta y horario (HU-30)", "Ruta y horarios de sus salidas, objetivo extendido (HU-43)"),
-            Role.CONTADOR, List.of("Reembolso registrado al cancelar, CR-001 (HU-36)", "Pagos y facturas, backlog futuro (HU-46 a HU-48)"));
+            Role.CONTADOR, List.of("Reembolso registrado al cancelar, CR-001 (HU-36, Sprint 3)", "Pagos y facturas, backlog futuro (HU-46 a HU-48)"));
 
     private final CatalogService catalog;
     private final ReservationService reservations;
@@ -102,6 +97,15 @@ public class WebController {
             case GERENTE:
             case ADMIN:
                 return "redirect:/auditoria";
+            case AGENTE:
+                return "redirect:/agente";
+            case PROVEEDOR:
+                return "redirect:/proveedor";
+            case COORDINADOR:
+                return "redirect:/coordinador";
+            case GUIA:
+            case CONDUCTOR:
+                return "redirect:/avisos";
             default:
                 model.addAttribute("rol", user.role().label());
                 model.addAttribute("proximamente", PROXIMAMENTE.getOrDefault(user.role(), List.of()));

@@ -27,6 +27,26 @@ class WebIT extends IntegrationTest {
     }
 
     @Test
+    @DisplayName("Sprint 2: el agente, el proveedor y el coordinador ven sus pantallas")
+    void pantallasSprint2() throws Exception {
+        mvc.perform(get("/agente").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                        .user("agente@viajesplus.co").roles("AGENTE")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("Reservas pendientes")));
+        mvc.perform(get("/proveedor").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                        .user("proveedor@viajesplus.co").roles("PROVEEDOR")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("Hotel Mar Azul")));
+        mvc.perform(get("/coordinador").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                        .user("coordinador@viajesplus.co").roles("COORDINADOR")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("Asignar hotel")));
+        mvc.perform(get("/avisos").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                        .user("guia@viajesplus.co").roles("GUIA")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("Mis salidas asignadas")));
+        mvc.perform(get("/agente").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                        .user("cliente@viajesplus.co").roles("CLIENTE")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("El cliente inicia sesión en la web y llega a su panel")
     void loginWeb() throws Exception {
         mvc.perform(formLogin("/login").user("cliente@viajesplus.co").password(PASSWORD))

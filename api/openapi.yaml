@@ -1,14 +1,15 @@
 openapi: 3.0.3
 info:
   title: ViajesPlus API
-  version: "1.0 (Sprint 1)"
+  version: "1.1 (Sprint 2)"
   description: |
     Contrato de la API de ViajesPlus (D06, Puerta 2). Cubre lo comprometido en el Sprint 1:
     autenticación con el proveedor OIDC simulado (IMP-01), catálogo, cotización, solicitud y consulta de
     reservas, y auditoría. Los errores de negocio responden 422 con { "code", "message", "details" };
     un recurso ajeno o un rol sin permiso responde 403 (ACCESO_DENEGADO); sin token, 401 (NO_AUTENTICADO).
-    Las rutas de los sprints 2 y 3 (confirm, reject, assignment, cancel) se agregan a este archivo cuando
-    se implementan.
+    Sprint 2 (spec v1.0.1): confirmar y rechazar (agente), disponibilidad del proveedor, asignación de hotel,
+    guía y conductor (coordinador) y avisos. Desde la v1.0.1 la solicitud ocupa cupo (RN-02) y responde
+    CUPO_INSUFICIENTE si no hay plazas. La cancelación (cancel) se agrega en el Sprint 3.
 servers:
   - url: /
 security:
@@ -74,12 +75,14 @@ paths:
             schema: { $ref: '#/components/schemas/ReservationRequest' }
       responses:
         '201': { description: Reserva creada en PENDIENTE, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
-        '422': { description: DATOS_INVALIDOS con el campo en details, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+        '422': { description: DATOS_INVALIDOS con el campo en details, o CUPO_INSUFICIENTE (RN-02), content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
         '403': { description: ACCESO_DENEGADO (rol distinto de Cliente) }
     get:
       tags: [Reservas]
       summary: Listar reservas (REQ-VIA-012)
-      description: El cliente ve solo las suyas; asesor, agente, gerente y administrador ven todas.
+      description: El cliente ve solo las suyas; guía y conductor, las asignadas; asesor, agente, coordinador, gerente y administrador ven todas. Con status=PENDIENTE el agente recibe su bandeja ordenada por fecha de salida (HU-16).
+      parameters:
+        - { name: status, in: query, required: false, schema: { type: string, enum: [PENDIENTE, CONFIRMADA, RECHAZADA, CANCELADA] } }
       responses:
         '200': { description: Reservas, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Reservation' } } } } }
   /api/reservations/{id}:
@@ -91,6 +94,81 @@ paths:
         '200': { description: Reserva, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
         '403': { description: ACCESO_DENEGADO (reserva de otro cliente) }
         '404': { description: NO_ENCONTRADO }
+  /api/reservations/{id}/confirm:
+    post:
+      tags: [Reservas]
+      summary: Confirmar una reserva (REQ-VIA-006, REQ-VIA-007)
+      description: Rol Agente. Exige 5 días o más de antelación (RN-04) y un hotel con disponibilidad confirmada (RN-05). Avisa al cliente.
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '200': { description: Reserva CONFIRMADA, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
+        '422': { description: ANTELACION_INSUFICIENTE, SIN_DISPONIBILIDAD o ESTADO_INVALIDO, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+        '403': { description: ACCESO_DENEGADO (rol distinto de Agente) }
+  /api/reservations/{id}/reject:
+    post:
+      tags: [Reservas]
+      summary: Rechazar una reserva (REQ-VIA-008)
+      description: Rol Agente. Exige motivo, libera el cupo y avisa al cliente.
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { reason: { type: string, example: Sin disponibilidad de vuelos } } }
+      responses:
+        '200': { description: Reserva RECHAZADA, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
+        '422': { description: MOTIVO_OBLIGATORIO o ESTADO_INVALIDO, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+        '403': { description: ACCESO_DENEGADO }
+  /api/reservations/{id}/assignment:
+    put:
+      tags: [Reservas]
+      summary: Asignar hotel, guía y conductor (REQ-VIA-009)
+      description: Rol Coordinador. Solo reservas CONFIRMADA; hotel con disponibilidad confirmada (RN-05); sin cruces de guía o conductor el mismo día (RN-06). Avisa al guía, al conductor y al cliente.
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AssignmentRequest' }
+      responses:
+        '200': { description: Reserva asignada, content: { application/json: { schema: { $ref: '#/components/schemas/Reservation' } } } }
+        '422': { description: HOTEL_SIN_DISPONIBILIDAD, CRUCE_GUIA, CRUCE_CONDUCTOR, ESTADO_INVALIDO o DATOS_INVALIDOS, content: { application/json: { schema: { $ref: '#/components/schemas/ApiError' } } } }
+        '403': { description: ACCESO_DENEGADO }
+  /api/reservations/{id}/assignment-options:
+    get:
+      tags: [Reservas]
+      summary: Hoteles con disponibilidad confirmada, guías y conductores para asignar
+      description: Rol Coordinador.
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      responses:
+        '200': { description: Opciones de asignación }
+        '403': { description: ACCESO_DENEGADO }
+  /api/providers/availability:
+    get:
+      tags: [Proveedor de hoteles]
+      summary: Disponibilidad de mis hoteles por salida (HU-20)
+      description: Rol Proveedor.
+      responses:
+        '200': { description: Disponibilidad, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Availability' } } } } }
+    put:
+      tags: [Proveedor de hoteles]
+      summary: Informar disponibilidad y tarifa (HU-20, RN-05)
+      description: Rol Proveedor. Un hotel de otro proveedor responde 403.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AvailabilityRequest' }
+      responses:
+        '200': { description: Disponibilidad guardada, content: { application/json: { schema: { $ref: '#/components/schemas/Availability' } } } }
+        '422': { description: DATOS_INVALIDOS }
+        '403': { description: ACCESO_DENEGADO }
+  /api/notifications:
+    get:
+      tags: [Avisos]
+      summary: Mis avisos (NFR-VIA-003)
+      description: Avisos por correo enviados al usuario autenticado (simulado en el entorno de pruebas).
+      responses:
+        '200': { description: Avisos }
   /api/audit:
     get:
       tags: [Auditoría]
@@ -173,6 +251,38 @@ components:
         status: { type: string, enum: [PENDIENTE, CONFIRMADA, RECHAZADA, CANCELADA] }
         clientUsername: { type: string }
         createdAt: { type: string, format: date-time }
+        decidedBy: { type: string, nullable: true }
+        decidedAt: { type: string, format: date-time, nullable: true }
+        rejectionReason: { type: string, nullable: true }
+        hotelName: { type: string, nullable: true }
+        guideUsername: { type: string, nullable: true }
+        driverUsername: { type: string, nullable: true }
+    AssignmentRequest:
+      type: object
+      required: [hotelId, guideUsername, driverUsername]
+      properties:
+        hotelId: { type: integer, format: int64 }
+        guideUsername: { type: string, example: guia@viajesplus.co }
+        driverUsername: { type: string, example: conductor@viajesplus.co }
+    Availability:
+      type: object
+      properties:
+        hotelId: { type: integer, format: int64 }
+        hotelName: { type: string }
+        departureId: { type: integer, format: int64 }
+        departureDate: { type: string, format: date }
+        rooms: { type: integer }
+        ratePerNight: { type: number }
+        confirmed: { type: boolean }
+    AvailabilityRequest:
+      type: object
+      required: [hotelId, departureId, rooms, ratePerNight, confirmed]
+      properties:
+        hotelId: { type: integer, format: int64 }
+        departureId: { type: integer, format: int64 }
+        rooms: { type: integer, minimum: 0 }
+        ratePerNight: { type: number, minimum: 0 }
+        confirmed: { type: boolean }
     AuditEntry:
       type: object
       properties:

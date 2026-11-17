@@ -30,7 +30,9 @@ public class DemoUsers implements ApplicationRunner {
             new Demo("proveedor@viajesplus.co", "Hotel Mar Azul (proveedor)", Role.PROVEEDOR),
             new Demo("coordinador@viajesplus.co", "Sofía Herrera (coordinadora)", Role.COORDINADOR),
             new Demo("guia@viajesplus.co", "Mateo Salazar (guía)", Role.GUIA),
+            new Demo("guia2@viajesplus.co", "Valentina Ruiz (guía)", Role.GUIA),
             new Demo("conductor@viajesplus.co", "Diego Vargas (conductor)", Role.CONDUCTOR),
+            new Demo("conductor2@viajesplus.co", "Felipe Castro (conductor)", Role.CONDUCTOR),
             new Demo("contador@viajesplus.co", "Paula Medina (contadora)", Role.CONTADOR),
             new Demo("gerente@viajesplus.co", "Ricardo León (gerente)", Role.GERENTE),
             new Demo("admin@viajesplus.co", "Administración ViajesPlus", Role.ADMIN));
