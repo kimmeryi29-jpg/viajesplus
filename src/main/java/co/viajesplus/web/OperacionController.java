@@ -113,7 +113,7 @@ public class OperacionController {
         return "redirect:/proveedor";
     }
 
-    /** HU-24 a HU-27: el coordinador asigna hotel, guía y conductor a las reservas confirmadas. */
+    /** HU-24 a HU-28: el coordinador asigna hotel, guía y conductor a las reservas confirmadas. */
     @GetMapping("/coordinador")
     public String coordinador(Model model) {
         List<Reservation> confirmadas = reservations.withStatus(ReservationStatus.CONFIRMADA);
@@ -140,7 +140,7 @@ public class OperacionController {
         return "redirect:/coordinador";
     }
 
-    /** Avisos del usuario (T012, T015) y, para guía y conductor, sus salidas asignadas (HU-28, HU-29). */
+    /** Avisos del usuario (T012, T015) y, para guía y conductor, sus salidas asignadas (HU-29, HU-30). */
     @GetMapping("/avisos")
     public String avisos(Authentication auth, Model model) {
         var user = CurrentUsers.from(auth);

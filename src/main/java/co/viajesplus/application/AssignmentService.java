@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * T014 · Caso de uso AssignHotelAndTour. HU3: el coordinador asigna hotel, guía y conductor a una reserva CONFIRMADA.
  * Trazabilidad: REQ-VIA-009, REQ-VIA-011 · RN-05 (hotel con disponibilidad confirmada) · RN-06 (sin cruces el mismo día)
- * · AC-009.1 a AC-009.3. Avisa al guía y al conductor (HU-28 y HU-29, ADR-004).
+ * · AC-009.1 a AC-009.3. Avisa al guía y al conductor (HU-29 y HU-30, ADR-004).
  */
 @Service
 public class AssignmentService {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/** Opciones para la asignación del coordinador (HU-24 a HU-27). */
+/** Opciones para la asignación del coordinador (HU-24 a HU-28). */
 @RestController
 @RequestMapping("/api/reservations/{id}/assignment-options")
 @Tag(name = "Reservas")

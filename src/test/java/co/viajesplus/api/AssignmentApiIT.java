@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * T013 · Pruebas de asignación y cruces, escritas antes de T014 y T015. AC-009.1 a AC-009.3 · REQ-VIA-009 ·
- * RN-05 y RN-06 · HU-20, HU-24 a HU-29.
+ * RN-05 y RN-06 · HU-20, HU-24 a HU-30.
  */
 class AssignmentApiIT extends IntegrationTest {
 
@@ -61,7 +61,7 @@ class AssignmentApiIT extends IntegrationTest {
     }
 
     @Test
-    @DisplayName("HU-24 a HU-29: asigna hotel, guía y conductor y avisa al guía y al conductor")
+    @DisplayName("HU-24 a HU-30: asigna hotel, guía y conductor y avisa al guía y al conductor")
     void asignaYAvisa() throws Exception {
         Salida s = data.salida(40, 10, true);
         long id = confirmada(s);

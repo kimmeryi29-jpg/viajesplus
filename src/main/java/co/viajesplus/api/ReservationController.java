@@ -34,7 +34,7 @@ import java.util.List;
 
 /**
  * Reservas. Sprint 1 (T008): solicitud y consultas, HU-13 a HU-15. Sprint 2 (T011 y T015): confirmar, rechazar y
- * asignar, HU-16 a HU-27 · REQ-VIA-003 a REQ-VIA-009 y REQ-VIA-012.
+ * asignar, HU-16 a HU-30 · REQ-VIA-003 a REQ-VIA-009 y REQ-VIA-012.
  */
 @RestController
 @RequestMapping("/api/reservations")
